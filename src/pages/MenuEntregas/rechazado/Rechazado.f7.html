@@ -1,0 +1,245 @@
+<template>
+  <div class="page page-current">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link" data-panel="left">
+
+          </a>
+        </div>
+        <div class="center">Rechazado</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+
+      <div class="block-title">Cliente</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="1" encuesta_t_entrega="null" encuesta_producto="null" encuesta_documento="null">
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">No esta el dueño o encargado</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="2" encuesta_t_entrega="null" encuesta_producto="null" encuesta_documento="null"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">No tiene dinero</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="block-title">Documento</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="3" encuesta_t_entrega="true" encuesta_producto="true" encuesta_documento="false"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Descuento Inconforme</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="4" encuesta_t_entrega="true" encuesta_producto="true" encuesta_documento="false"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Desea crédito u otro tipo de venta</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="5" encuesta_t_entrega="true" encuesta_producto="true" encuesta_documento="false"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Error en digitación o toma de pedido</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="6" encuesta_t_entrega="true" encuesta_producto="true" encuesta_documento="false"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">No quiere o hizo otro pedido</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="7" encuesta_t_entrega="true" encuesta_producto="true" encuesta_documento="false"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">No realizó el pedido</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="block-title">Producto</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="8" encuesta_t_entrega="true" encuesta_producto="false" encuesta_documento="true"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Envío de producto con FV equivocada</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="9" encuesta_t_entrega="true" encuesta_producto="false" encuesta_documento="true"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Mercaderia en mal estado</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="10" encuesta_t_entrega="true" encuesta_producto="false" encuesta_documento="true"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Pedido incompleto</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+
+      <div class="block-title">Tiempo</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="11" encuesta_t_entrega="false" encuesta_producto="true" encuesta_documento="true"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Desea otro día</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="rechazo_total" value="12" encuesta_t_entrega="false" encuesta_producto="true" encuesta_documento="true"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Pedido Atrasado</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div style="height: 40px;"></div>
+    </div>
+
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link" @click="irMenu"> <i class="icon material-icons md-only">close</i> Cancelar</a>
+        <a class="link"> </a>
+        <a class="link" @click="enviarValidacionInformacion"> <i class="icon material-icons md-only">check</i>
+          Aceptar</a>
+      </div>
+    </div>
+
+  </div>
+</template>
+<script>
+
+  import {objectToString, StringToObject} from '../../../helper';
+  import $ from "jquery";
+  import moment from 'moment';
+
+  export default {
+
+    created: function () {
+      localStorage.setItem('rechazo_total', '0')
+    },
+
+    methods: {
+      irMenu() {
+        const router = this.$router;
+        router.navigate("/menu-entrega/");
+      },
+      enviarValidacionInformacion() {
+
+
+        const app = this.$app;
+        const router = this.$router;
+        let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+        app.dialog.preloader();
+
+
+        let rechazo_total = StringToObject(localStorage.rechazo_total);
+
+        if (rechazo_total == '0' || rechazo_total == 0) {
+
+          app.dialog.close();
+          var toastCenter = app.toast.create({
+            text: 'Seleccion un motivo de rechazo.',
+            position: 'center',
+            closeTimeout: 2000,
+          });
+
+          toastCenter.open()
+        }
+        else {
+          $.ajax({
+            type: 'put',
+            url: app.data.url_server + '/registroClienteRechazado',
+            headers: {authorization: `Bearer ${localStorage.token}`},
+            data: {
+              id: clienteseleccionado.id,
+              motivo_rechazo_total: rechazo_total,
+              encuestasRechazado:StringToObject(localStorage.encuestasRechazado)
+
+            },
+            success: function (response) {
+              app.dialog.close();
+              app.dialog.alert('Hora de Rechazo Total :' + moment(response.hora_entrega).format('DD MMMM YYYY, h:mm:ss a')
+                , 'Registro Rechazo Total', function () {
+                  router.navigate('/clientes/');
+
+
+                }, function () {
+
+                });
+
+
+            },
+            error: function (xhr, status, error) {
+              var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+              app.dialog.close();
+              app.dialog.alert(errorMessage, 'ERROR');
+            }
+
+          });
+        }
+
+
+      }
+    }
+
+  }
+</script>

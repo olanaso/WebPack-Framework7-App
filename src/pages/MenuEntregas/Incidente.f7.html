@@ -1,0 +1,144 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Incidentes</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <!-- Searchbar backdrop -->
+
+      <div class="block">
+        <h3>Describir el incidente</h3>
+        <div class="row">
+          <div class="col-100 tablet-100">
+            <div class="item-input-wrap">
+              <textarea class="resizable" placeholder="Incidente" id="txaincidente" maxlength="250" style="width:300px;height: 100px;"></textarea>
+              <span class="input-clear-button"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-100 tablet-100">
+            <center>
+              <img src="static/icons/camera.svg" alt="" style="height: 100px;" @click="capturarFoto">
+            </center>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-100 tablet-100">
+            <center>
+              <img id="imgfoto" src="https://via.placeholder.com/200X300" alt="" style="height: 300px;">
+            </center>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+    <div class="searchbar-backdrop"></div>
+    <!-- hide-on-search element -->
+
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link back">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="registrarIncidente">
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  </div>
+</template>
+<script>
+  import './css/camera.css';
+  import $ from 'jquery';
+
+  import {objectToString, StringToObject} from '../../helper'
+
+  export default {
+
+    methods: {
+      capturarFoto() {
+
+
+        navigator.camera.getPicture(function (image_path) {
+
+
+            $('#imgfoto').attr('src', "data:image/jpeg;base64,"+image_path)
+
+          }, function (message) {
+            alert('error con la camara')
+            console.log('Fail because:' + message)
+          },
+          {
+            quality: 10,
+            destinationType: 0
+          })
+
+      },
+      registrarIncidente() {
+
+        const app = this.$app;
+        const router = this.$router;
+
+
+        let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+
+        if ($("#txaincidente").val().trim() === '') {
+          var toastCenter = app.toast.create({
+            text: 'Seleccion el detalle del incidente.',
+            position: 'center',
+            closeTimeout: 2000,
+          });
+
+          toastCenter.open()
+        } else {
+
+          app.dialog.preloader('Registrando...');
+          $.ajax({
+            type: 'put',
+            url: app.data.url_server + '/registroClienteRegIncidente',
+            headers: {authorization: `Bearer ${localStorage.token}`},
+            data: {
+              id: clienteseleccionado.id,
+              incidente: $("#txaincidente").val(),
+              incidente_foto: $('#imgfoto').attr('src')
+            },
+            success: function (response) {
+              app.dialog.close();
+              app.dialog.confirm('Se registro correctamente el incidente para:' + clienteseleccionado.razon_social, function () {
+                router.navigate('/clientes/');
+              }, function () {
+              });
+             // app.dialog.close();
+            },
+            error: function (xhr, status, error) {
+              var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+              app.dialog.close();
+              app.dialog.alert(errorMessage, 'ERROR');
+            }
+          });
+        }
+      }
+    }
+
+  }
+</script>

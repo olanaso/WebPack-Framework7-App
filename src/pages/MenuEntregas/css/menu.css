@@ -1,0 +1,20 @@
+.icon-menu-completado{
+  background: green;height: auto!important; height: 80px;padding: 10px;
+}
+
+.icon-menu-parcial{
+  background: yellow;height: auto!important; height: 80px;padding: 10px;
+}
+
+.icon-menu-cerrado{
+  background: red;height: auto!important; height: 80px;padding: 10px;
+}
+
+.icon-menu-rechazado{
+  background: orange;height: auto!important; height: 80px;padding: 10px;
+}
+
+.icon-menu-otros{
+  background: #F8F8F8;height: auto!important; height: 80px;padding: 10px;
+}
+

@@ -1,0 +1,193 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Menu de Entregas</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block">
+
+        <div class="row">
+          <div class="col" >
+            <center>
+              <button @click="completado" class="col button button-fill  button-round icon-menu-completado" style="">
+                <img src="static/icons/entrega.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Completo</a>
+            </center>
+          </div>
+          <div class="col">
+            <center>
+              <button @click="parcial" class="col button button-fill  button-round icon-menu-parcial" style="">
+                <img src="static/icons/parcial.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Parcial</a>
+            </center>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <center>
+              <button @click="cerrado" class="col button button-fill  button-round icon-menu-cerrado" style="">
+                <img src="static/icons/cerrado.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Cerrado</a>
+            </center>
+          </div>
+          <div class="col">
+            <center>
+              <button @click="rechazado" class="col button button-fill  button-round icon-menu-rechazado" style="">
+                <img src="static/icons/stop.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Rechazado</a>
+            </center>
+          </div>
+        </div>
+    <h4>Otros</h4>
+        <div class="row">
+          <div class="col">
+            <center>
+              <button @click="incidente" class="col button button-raised  button-round icon-menu-otros" style="" >
+                <img src="static/icons/incidente.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Incidente</a>
+            </center>
+          </div>
+          <div class="col">
+            <center>
+              <button @click="clientes" class="col button button-raised  button-round icon-menu-otros" style="">
+                <img src="static/icons/shop.svg" style="height: 80px">
+              </button>
+              <a class="col button color-black">Clientes</a>
+            </center>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-60" >
+            <ul style="list-style-type: none;">
+              <li style="font-size: 14px;color: #19769F" ><i class="f7-icons">person</i> <p id="txt_codigo_cliente"></p>  <p id="txt_cliente"></p></li>
+              <li style="font-size: 12px;color: #51565F" ><i class="f7-icons">navigation_fill</i> <p id="direccion"></p></li>
+            </ul>
+          </div>
+          <div class="col-40" >
+            <ul style="list-style-type: none;">
+              <li style="font-size: 12px;color: red" ><i class="f7-icons">time</i> Tiempo transcurrido:<p id="tiempoTRancurrido"></p></li>
+              <li style="font-size: 12px;color: green" > <i class="f7-icons">star_fill</i> <p id="prioridad"></p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+  </div>
+</template>
+<script>
+  import $ from "jquery";
+  import {objectToString,StringToObject,tiempoTranscurrido} from '../../helper'
+ // import moment from "moment"
+
+  var moment = require('moment-timezone');
+  moment().tz("America/Lima").format();
+  moment.locale('es');
+
+  import './css/menu.css';
+
+  export default {
+
+    created(){
+
+      //alert(1)
+
+      let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+      console.log(clienteseleccionado)
+
+      setTimeout(function () {
+        $('#txt_codigo_cliente').text(clienteseleccionado.codigo_cliente);
+        $('#txt_cliente').text(clienteseleccionado.nombre_comercial);
+        $('#direccion').text(clienteseleccionado.direccion)
+        $('#prioridad').text(clienteseleccionado.prioridad==0?'Baja':'Alta')
+     //   $('#tiempoTRancurrido').text(moment(moment(clienteseleccionado.hora_llegada).format('YYYY-MM-DD HH:mm:ss'), "YYYY-MM-DD HH:mm:ss").fromNow())
+      }, 200)
+
+      if(window.tiempollegadaIteral==undefined){
+
+      }else{
+        clearInterval(window.tiempollegadaIteral)
+      }
+
+
+
+
+
+     window.tiempollegadaIteral= setInterval(function () {
+       // let timeleft=moment(moment(clienteseleccionado.hora_llegada).tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'), "HH:mm:ss").fromNow()
+        $('#tiempoTRancurrido').text(tiempoTranscurrido(moment(clienteseleccionado.hora_llegada)))
+      },1000)
+
+
+
+
+
+
+
+    },
+
+
+    methods: {
+
+      irConfirmarLlegada(){
+        var router =this.$router;
+        router.navigate("/confirmar-llegada/");
+
+      },
+      completado() {
+        var router =this.$router;
+        router.navigate("/completado/");
+
+      },
+      parcial(){
+        var router =this.$router;
+        router.navigate("/entrega-parcial/");
+
+      },
+      cerrado(){
+        var router =this.$router;
+        router.navigate("/cerrado/");
+
+      },
+      rechazado(){
+        var router =this.$router;
+        router.navigate("/rechazado/");
+
+      }
+      ,
+      incidente(){
+        var router =this.$router;
+        router.navigate("/incidente/");
+
+      }
+      ,
+      clientes(){
+        var router =this.$router;
+        router.navigate("/clientes/");
+
+      }
+    }
+
+
+
+  }
+</script>

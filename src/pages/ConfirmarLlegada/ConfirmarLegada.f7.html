@@ -1,0 +1,153 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" @click="irClientes" class="link" data-panel="left">
+            <i class="icon icon-back"></i>
+            <span class="if-ios">Atras</span>
+          </a>
+        </div>
+        <div class="center">Confirmar llegada</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="card-content padre">
+        <div class="block">
+          <div class="hijo">
+            <a @click="confirmacionLLegada" class=" " style="left: -100px;">
+              <img src="static/icons/power-off.svg" alt="" style="height: 150px;">
+            </a>
+          </div>
+        </div>
+      </div>
+      <center>
+        <h4>CLIENTE</h4>
+        <label style="font-size: 17px; color: #0c82df" id="cl_codigo_cliente"></label><br>
+        <label style="font-size: 15px; color: #0c82df" id="cl_nombre_comercial"></label><br>
+        <label style="font-size: 13px; color: #000" id="cl_razon_social"></label><br>
+        <label style="font-size: 11px; color: #6d6d72" id="cl_direccion"></label><br>
+      </center>
+
+      <!-- hide-on-search element -->
+      <!-- search target list -->
+    </div>
+
+
+  </div>
+</template>
+<script>
+
+  import './css/confirmarllegada.css';
+
+  import $ from "jquery";
+  import moment from "moment"
+
+  moment.locale('es');
+  import {objectToString, StringToObject} from '../../helper';
+  import {whatsApp} from '../../HelpApps';
+
+
+  export default {
+
+    created() {
+
+
+      let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+      console.log(clienteseleccionado)
+
+      setTimeout(function () {
+        $('#cl_codigo_cliente').text(clienteseleccionado.codigo_cliente);
+        $('#cl_nombre_comercial').text(clienteseleccionado.nombre_comercial);
+        $('#cl_razon_social').text(clienteseleccionado.razon_social);
+        $('#cl_direccion').text(clienteseleccionado.direccion);
+      }, 0);
+
+
+    },
+
+    methods: {
+      confirmacionLLegada() {
+
+
+        const app = this.$app;
+        const router = this.$router;
+
+
+        app.dialog.confirm('¿Desea iniciar el proceso de entrega a un cliente?', 'Proceso de entrega al cliente', function () {
+
+
+          navigator.geolocation.getCurrentPosition(
+            function (posistion) {
+
+              //  alert(posistion)
+              console.log(posistion.coords)
+              console.log(posistion.coords.latitude);
+
+              let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+              console.log(clienteseleccionado)
+
+              app.dialog.preloader('Registrando Marcacion de llegada.');
+              $.ajax({
+                type: 'put',
+                url: app.data.url_server + '/registrarMarcadoLLegada',
+                headers: {authorization: `Bearer ${localStorage.token}`},
+                data: {
+                  'pto_cliente': {
+                    latitud: clienteseleccionado.latitud,
+                    longitud: clienteseleccionado.longitud
+                  },
+                  'pto_marcado': {
+                    latitud: posistion.coords.latitude,
+                    longitud: posistion.coords.longitude
+                  },
+                  'id': clienteseleccionado.id,
+                  accuracy: posistion.coords.accuracy
+                },
+                success: function (response) {
+                  app.dialog.close();
+                  app.dialog.alert(`Hora de llegada: ${moment(response.hora_lleda).format('DD/MM/YYYY, h:mm:ss a') } <br>
+                   Distancia : ${(response.distancia_llegada/1000).toFixed(2)} Km
+                  `, 'Registro correcto.');
+                  setTimeout(function () {
+                    app.dialog.close();
+                    var clienteresultado = Object.assign(StringToObject(localStorage.clienteseleccionado), response);
+                    localStorage.setItem("clienteseleccionado", objectToString(clienteresultado));
+                    router.navigate("/menu-entrega/");
+                  }, 500);
+                  console.log(response)
+                },
+                error: function (xhr, status, error) {
+                  var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+                  app.dialog.close();
+                  app.dialog.alert(errorMessage, 'ERROR');
+                }
+
+              });
+
+
+            },
+            function (error) {
+              console.log(error)
+              app.dialog.alert(`El GSP no esta funcionando : ${error.message}`, 'ERROR');
+
+            }, {
+              maximumAge: 3000,
+              timeout: 6000,
+              enableHighAccuracy: true
+            });
+
+        });
+
+
+      },
+      irClientes() {
+        var router = this.$router;
+        router.navigate("/clientes/");
+
+      }
+    },
+
+  }
+</script>

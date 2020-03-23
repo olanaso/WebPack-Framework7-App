@@ -1,0 +1,201 @@
+<template>
+  <div class="page page-current">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center" ><label id="nro_factura"></label></div>
+
+      </div>
+    </div>
+    <div class="page-content">
+
+      <div class="block-title">Cliente</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="1"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">No tiene dinero</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="block-title">Documento</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="2"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Descuento Inconforme</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="3"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Desea crédito u otro tipo de venta</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="4"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Error en digitación o toma de pedido</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="block-title">Producto</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="5"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Envío de producto con FV equivocada</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="6"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Mercaderia en mal estado</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="7"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Pedido en mal estado</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="block-title">Tiempo</div>
+      <div class="list">
+        <ul>
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="demo-radio" value="8"/>
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">Pedido Atrasado</div>
+              </div>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+      <div style="height: 20px"></div>
+
+
+    </div>
+
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link" href="/entrega-parcial/"> <i class="icon material-icons md-only">close</i> Cancelar</a>
+        <a class="link"> </a>
+        <a class="link" @click="enviarValidacionInformacion"> <i class="icon material-icons md-only">check</i>
+          Aceptar</a>
+      </div>
+    </div>
+
+  </div>
+</template>
+<script>
+
+  import $ from "jquery";
+  export default {
+
+    created() {
+
+      let numero_facturaseleccionada =localStorage.numero_facturaseleccionada;
+
+      setTimeout(function () {
+        $('#nro_factura').text(numero_facturaseleccionada)
+      },200)
+
+    },
+
+    methods: {
+      enviarValidacionInformacion() {
+        const app = this.$app;
+        const router = this.$router;
+
+
+        if(localStorage.rechazo_parcial==='0'){
+
+          var toastCenter = app.toast.create({
+            text: 'Seleccione el motivo del rechazo.',
+            position: 'center',
+            closeTimeout: 2000,
+          });
+
+          toastCenter.open()
+
+        }else{
+          $.ajax({
+            type: 'put',
+            url: app.data.url_server + '/actualizacionFactAlbaran',
+            headers: {authorization: `Bearer ${localStorage.token}`},
+            data: {
+              id:localStorage.facturaselecionada,
+              motivo_rechazo_parcial:localStorage.rechazo_parcial
+            },
+            success: function (response) {
+              //  app.dialog.close();
+              var toastCenter = app.toast.create({
+                text: 'Se guardo la información',
+                position: 'center',
+                closeTimeout: 2000,
+              });
+
+              toastCenter.open()
+              router.navigate('/entrega-parcial/');
+
+            },
+            error: function (xhr, status, error) {
+              var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+              app.dialog.close();
+              app.dialog.alert(errorMessage, 'ERROR');
+            }
+
+          });
+        }
+
+
+
+
+
+
+      }
+    }
+
+  }
+</script>

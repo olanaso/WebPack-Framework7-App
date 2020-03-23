@@ -1,0 +1,125 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Entrega Parcial</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="list links-list">
+        <ul id="listafacturasClientes">
+
+
+        </ul>
+      </div>
+
+
+    </div>
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link " @click="irMenu">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="validarConformidad">
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+
+  </div>
+</template>
+<script>
+  import $ from "jquery";
+
+  import {objectToString, StringToObject} from '../../../helper'
+
+  var facturaprocesadas = 0;
+
+  export default {
+    created: function () {
+
+      facturaprocesadas = false;
+      var myapp = this;
+      const app = this.$app;
+      let clienteseleccionado = JSON.parse(localStorage.clienteseleccionado);
+      console.log(clienteseleccionado)
+
+      $.ajax({
+        type: 'get',
+        url: app.data.url_server + '/listadofactAlbaranes/' + clienteseleccionado.id,
+        headers: {authorization: `Bearer ${localStorage.token}`},
+        /* data: {
+           'placa': placa,
+           'clave': clave
+         },*/
+        success: function (listaFacturas) {
+
+
+          for (let factura of listaFacturas) {
+            $('#listafacturasClientes').append(`
+             <li class="facturasrechazo" style="background: ${!factura.motivo_rechazo_parcial ? '#FFF' : '#00bfad'}" factura="${factura.id}" numero_factura="${factura.numeroalbaran}"><a href="#">${factura.numeroalbaran}</a></li>
+            `)
+
+            if (!factura.motivo_rechazo_parcial) {
+            } else {
+              facturaprocesadas = true;
+            }
+
+
+          }
+
+
+          $('.facturasrechazo').on('click', function (e) {
+            let facturaseleccionada = $(this).attr('factura');
+            let numero_facturaseleccionada = $(this).attr('numero_factura');
+            localStorage.setItem('facturaselecionada', facturaseleccionada);
+            localStorage.setItem('numero_facturaseleccionada', numero_facturaseleccionada);
+            myapp.mostrarMotivoRechazo();
+          })
+        },
+        error: function (xhr, status, error) {
+          var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+          app.dialog.close();
+          app.dialog.alert(errorMessage, 'ERROR');
+        }
+
+      });
+
+    },
+
+    methods: {
+      irMenu() {
+        const app = this.$app;
+        const router = this.$router;
+        router.navigate('/menu-entrega/');
+      },
+      validarConformidad() {
+        const app = this.$app;
+        if (facturaprocesadas) {
+          const app = this.$app;
+          const router = this.$router;
+          router.navigate('/alerta-validar-conformidad-parcial/');
+        } else {
+          app.dialog.alert('Debe elegir al menos una FACTURA', 'ERROR');
+        }
+
+
+      },
+      mostrarMotivoRechazo() {
+        const app = this.$app;
+        const router = this.$router;
+        router.navigate('/motivo-rechazo-facturas/');
+      }
+    }
+
+  }
+</script>

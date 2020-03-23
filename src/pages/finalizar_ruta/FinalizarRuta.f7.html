@@ -1,0 +1,187 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Finalizar Ruta</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+      <!-- Searchbar backdrop -->
+
+      <div class="block-title">Motivo de la no entrega</div>
+      <div class="list no-hairlines-md">
+
+
+        <div class="list">
+          <ul>
+            <li>
+              <label class="item-radio item-content">
+                <input type="radio" name="demo-radio" value="1" />
+                <i class="icon icon-radio"></i>
+                <div class="item-inner">
+                  <div class="item-title">Falto tiempo</div>
+                </div>
+              </label>
+            </li>
+            <li>
+              <label class="item-radio item-content">
+                <input type="radio" name="demo-radio" value="2" />
+                <i class="icon icon-radio"></i>
+                <div class="item-inner">
+                  <div class="item-title">Camioneta Malograda</div>
+                </div>
+              </label>
+            </li>
+
+          </ul>
+        </div>
+
+
+        <ul>
+
+
+          <li class="item-content item-input">
+            <div class="item-media">
+              <i class="icon demo-list-icon"></i>
+            </div>
+            <div class="item-inner">
+              <div class="item-title item-floating-label">Incidente</div>
+              <div class="item-input-wrap">
+                <textarea id="txtincidente" class="resizable" placeholder="Indice general de la no entrega" maxlength="500"></textarea>
+                <span class="input-clear-button"></span>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="block">
+
+              <div class="row">
+                <div class="col-100 tablet-100">
+                  <center>
+                    <img src="static/icons/camera.svg" alt="" style="height: 50px;" @click="capturarFoto">
+                  </center>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-100 tablet-100">
+                  <center>
+                    <img id="imgfoto" src="https://via.placeholder.com/200X300" alt="" style="height: 300px;">
+                  </center>
+                </div>
+              </div>
+            </div>
+
+          </li>
+        </ul>
+      </div>
+
+
+    </div>
+
+
+    <div class="searchbar-backdrop"></div>
+    <!-- hide-on-search element -->
+
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link back">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="FinalizarRuta">
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  </div>
+</template>
+<script>
+
+  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../helper';
+  import moment from 'moment'
+
+  export default {
+    created(){
+      localStorage.setItem("finalizar_ruta", '0');
+    },
+
+    methods: {
+      capturarFoto() {
+        navigator.camera.getPicture(function (image_path) {
+
+
+            $('#imgfoto').attr('src', image_path)
+
+          }, function (message) {
+            alert('error con la camara')
+            console.log('Fail because:' + message)
+          },
+          {
+            quality: 25,
+            destinationType: 1
+          })
+      },
+      FinalizarRuta() {
+
+
+        const app = this.$app;
+        const router = this.$router;
+      //  let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+        app.dialog.preloader();
+
+
+
+
+
+        $.ajax({
+          type: 'put',
+          url: app.data.url_server + '/finalizar_ruta',
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          data: {
+            placa: app.transportista.placa,
+            fin_ruta_motivo: localStorage.finalizar_ruta,
+            fin_ruta_incidente: $('#txtincidente').val(),
+            fin_ruta_foto: $('#imgfoto').attr('src')
+
+          },
+          success: function (response) {
+            app.dialog.close();
+            app.dialog.confirm('Se finalizo la ruta :' + moment().format('DD MMMM YYYY, h:mm:ss a')
+              , 'Registro Finalizacion de Ruta.', function () {
+                router.navigate('/clientes/');
+
+
+              }, function () {
+
+              });
+
+
+          },
+          error: function (xhr, status, error) {
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      }
+    }
+
+  }
+</script>

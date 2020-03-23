@@ -1,0 +1,91 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link panel-open" data-panel="left">
+            <i class="icon f7-icons if-ios">menu</i>
+            <i class="icon material-icons if-md">menu</i>
+          </a>
+        </div>
+        <div class="center">Clientes</div>
+        <div class="right">
+
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="page-content">
+
+
+      <br>
+      <br>
+      <br>
+      <br>
+      <div class="card ">
+        <div class="card-content">
+          <div class="" style="height: 150px; background: #606A79;padding: 10px;border-radius: 8px">
+            <center>
+              <p style="font-size: 18px; color: white">Sin clientes por atender.</p>
+
+            </center>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+
+
+
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+
+  import './css/clientes.css';
+
+  export default {
+
+    methods:{
+      sincronizando(){
+        const app = this.$app;
+        app.dialog.preloader('Sincronizando ...');
+        setTimeout(function () {
+          app.dialog.close();
+        }, 3000);
+      },
+      finalizarRuta(){
+        const app = this.$app;
+        const router = this.$router;
+        app.dialog.create({
+          title: '04 Clientes Pendientes',
+          text: '',
+          buttons: [
+            {
+              text: 'Finalizar ruta',
+              onClick:function () {
+
+                router.navigate('/finalizar-ruta/');
+
+              }
+            },
+            {
+              text: 'Continuar',
+              onClick:function () {
+
+              }
+            }
+          ],
+          verticalButtons: false,
+        }).open();
+
+      }
+    }
+  }
+</script>

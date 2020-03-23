@@ -1,0 +1,136 @@
+<template>
+  <div class="page">
+
+
+    <div class="page-content login-screen-content">
+      <br> <br> <br>
+      <div class="login-screen-title">
+        <img src="static/icons/perufarma-logo-dark.png" height="80"/>
+      </div>
+      <form class="list">
+
+        <div class="list no-hairlines-md" style="padding: 20px;">
+          <ul>
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="f7-icons">cloud_fill</i>
+              </div>
+              <div class="item-inner">
+
+                <div class="item-input-wrap">
+                  <input id="ipservidor" name="ipservidor" data-mask="999.999.999" type="text"
+                         placeholder="Ingrese la ip del servidor o dominio" class="">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+
+
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="f7-icons">cloud_upload_fill</i>
+              </div>
+              <div class="item-inner">
+
+                <div class="item-input-wrap">
+                  <input id="puertoservidor" name="puertoservidor" type="number"
+                         placeholder="Ingrese el puerto Ejem: 3225" class="">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="f7-icons">placemark_fill</i>
+              </div>
+              <div class="item-inner">
+
+                <div class="item-input-wrap">
+                  <input id="tiempogps" name="tiempogps" type="number" placeholder="Intervalo de envio de GPS Ejem: 5"
+                         class="">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+
+
+          </ul>
+        </div>
+
+      </form>
+      <div class="list" style="padding: 20px;">
+        <ul>
+          <li>
+
+            <a id="btnlogin" @click="guardarConfiguracion" class="col button button-raised button-fill button-round">Guardar</a>
+          </li>
+        </ul>
+        <div class="block-footer">
+
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</template>
+<script>
+
+  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../helper'
+
+
+  export default {
+
+
+    created() {
+
+      let config;
+
+      if(localStorage.credentials==undefined){
+        config = {ipServidor:'',puertoServidor:'',tiempoGPS:''}
+      }else{
+        config = JSON.parse(localStorage.credentials )
+      }
+
+
+   //   let config = StringToObject(localStorage.credentials)
+
+      setTimeout(function () {
+        $('#ipservidor').val(config.ipServidor)
+        $('#puertoservidor').val(config.puertoServidor)
+        $('#tiempogps').val(config.tiempoGPS)
+      },200)
+
+
+
+    },
+
+    methods: {
+      guardarConfiguracion() {
+        const app = this.$app;
+
+        if ($('#ipservidor').val().trim() == '' || $('#puertoservidor').val().trim() == '' || $('#tiempogps').val().trim() == '') {
+          app.dialog.alert('Faltan ingresar datos de la configuracion', 'ERROR');
+        } else {
+          const config = {
+            ipServidor: $('#ipservidor').val(),
+            puertoServidor: $('#puertoservidor').val(),
+            tiempoGPS: $('#tiempogps').val(),
+          }
+          localStorage.setItem('credentials', objectToString(config))
+        //  let config = JSON.parse(localStorage.credentials)
+          this.$app.data.url_server=`http://${config.ipServidor}:${config.puertoServidor}/api`;
+          const router = this.$router;
+          router.navigate('/login/');
+
+        }
+
+
+      }
+    }
+
+
+  }
+</script>

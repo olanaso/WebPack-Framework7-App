@@ -1,0 +1,348 @@
+<template>
+  <div class="page">
+
+
+    <div class="page-content login-screen-content ptr-content">
+
+      <div class="ptr-preloader">
+        <div class="preloader"></div>
+        <div class="ptr-arrow"></div>
+      </div>
+
+      <br> <br> <br>
+      <div class="login-screen-title">
+        <img src="static/icons/perufarma-logo-dark.png" height="80"/>
+      </div>
+      <form class="list">
+
+        <div class="list no-hairlines-md" style="padding: 20px;">
+          <ul>
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="material-icons">local_car_wash</i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title item-floating-label">Placa</div>
+                <div class="item-input-wrap">
+                  <input id="placa" name="placa" type="text" placeholder="Ingrese placa" class="" @Keyup="uppsercase">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="material-icons">lock</i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title item-floating-label">Password</div>
+                <div class="item-input-wrap">
+                  <input id="clave" name="clave" type="password" placeholder="Ingrese password" class=""
+                         @Keypress="keypressenter">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+
+            <li class="item-content item-input item-input-outline">
+              <div class="item-media">
+                <i class="f7-icons">cloud_fill</i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title"></div>
+                <div class="item-input-wrap">
+                  <select name="" id="servidor_activo">
+                    <option value="Server01">Servidor 01</option>
+                    <option value="Server02">Servidor 02</option>
+                  </select>
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+
+
+          </ul>
+        </div>
+
+      </form>
+      <div class="list" style="padding: 20px;">
+        <ul>
+          <li>
+
+            <a id="btnlogin" @click="login" class="col button button-raised button-fill button-round">Ingresar</a>
+          </li>
+        </ul>
+        <div class="block-footer">
+
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</template>
+<script>
+
+  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../helper'
+  import {servers} from "./servers";
+
+
+  export default {
+
+
+    created() {
+
+
+
+      /*Routeo de servidores*/
+
+
+    },
+    on: {
+      pageInit: function (event, page) {
+
+        let config;
+
+        let servidor = $('#servidor_activo option:selected').val();
+
+        if (servidor == 'Server01') {
+
+          const config = servers[0];
+          localStorage.setItem('credentials', JSON.stringify(config));
+
+        }
+
+        if (servidor == 'Server02') {
+
+          const config = servers[1];
+          localStorage.setItem('credentials', JSON.stringify(config));
+
+        }
+
+        if (localStorage.credentials == undefined) {
+          config = {ipServidor: '', puertoServidor: '', tiempoGPS: ''}
+        } else {
+          config = JSON.parse(localStorage.credentials)
+        }
+
+        this.$app.data.url_server = `http://${config.ipServidor}:${config.puertoServidor}/api`;
+        const app = this.$app//.data.url_server=`http://${config.ipServidor}:${config.puertoServidor}/api`;
+        const f7 = this
+        const router = this.$router;
+        //   let $$=this.$dom7.Dom7;
+        console.log(this)
+
+
+        setTimeout(function () {
+          var $ptrContent = f7.$dom7('.ptr-content');
+
+          $ptrContent.on('ptr:refresh', function (e) {
+            app.dialog.password('Password de configuración:', function (password) {
+              if (password === 'Valeria1') {
+                router.navigate('/configuracion/');
+              } else {
+                app.dialog.alert(`El password es incorrecto.`);
+                /* $('#clave').attr('disabled', 'disabled')
+                 $('#placa').attr('disabled', 'disabled')*/
+              }
+
+            });
+            app.ptr.done(); // or e.detail();
+          });
+        }, 200)
+
+
+        /*   if (localStorage.credentials === undefined) {
+
+             app.dialog.password('Password de configuración:', function (password) {
+               if (password === 'Valeria1') {
+                 router.navigate('/configuracion/');
+               } else {
+                 app.dialog.alert(`El password es incorrecto.`);
+                 /* $('#clave').attr('disabled', 'disabled')
+                  $('#placa').attr('disabled', 'disabled')*/
+        //}
+
+        //});
+
+
+        //}*/
+
+
+        localStorage.setItem("encuesta_entrega_completa", '{"tiempo":"null","producto":"null","documento":"null"}');
+        localStorage.setItem("rechazo_total", '0');
+
+
+        $('#clave').focusout(function (e) {
+         // app.login()
+          $('btnlogin').focus();
+        })
+
+        $('#placa').keyup(function (e) {
+          $(this).val($(this).val().toUpperCase())
+        })
+
+        // localStorage.setItem("transportista", objectToString(response.transportista));
+        let transportista = localStorage.transportista;
+        if (transportista !== undefined) {
+          setTimeout(function () {
+            let otransportista = StringToObject(transportista);
+            $('#placa').val(otransportista.placa);
+            $('#placa').focus();
+          }, 500)
+
+        }
+
+
+        $('#servidor_activo').change(function () {
+          // alert(1)
+          let servidor = $('#servidor_activo option:selected').val();
+          if (servidor == 'Server01') {
+
+            const config = {
+              ipServidor: '200.121.128.47',
+              puertoServidor: '3016',
+              tiempoGPS: '60',
+            }
+            localStorage.setItem('credentials', JSON.stringify(config))
+
+          }
+          if (servidor == 'Server02') {
+            const config = {
+              ipServidor: '181.177.246.87',
+              puertoServidor: '3016',
+              tiempoGPS: '60',
+            }
+            localStorage.setItem('credentials', JSON.stringify(config))
+          }
+        })
+
+
+        document.addEventListener('backbutton', onBackKeyDown, false);
+
+        function onBackKeyDown() {
+          navigator.app.exitApp();
+        }
+
+
+        /*Envio de GPS*/
+
+
+      }
+    },
+
+    methods: {
+      irConfiguracion() {
+        router.load('/configuracion/');
+      },
+      login() {
+
+
+        const app = this.$app;
+        const router = this.$router;
+
+        let placa = $('#placa').val();
+        let clave = $('#clave').val();
+
+        if (!placa || !clave || placa.trim() == '' || clave.trim() == '') {
+          app.dialog.alert('Falta Ingresar la Placa o la Clave.');
+          return;
+        }
+
+        app.dialog.preloader('Iniciando sessión...');
+        /* alert( app.data.url_server + '/login')
+         alert(placa)
+         alert(clave)*/
+
+      /*    fetch(app.data.url_server + '/login', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              'placa': placa,
+              'clave': clave
+            })
+          })
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (response) {
+              console.log(response)
+              localStorage.setItem("transportista", objectToString(response.transportista));
+              localStorage.setItem("token", response.token);
+              $('#transportista').text(response.transportista.empresa_transporte);
+              $('#transp_chofer').val(response.transportista.nombre_chofer);
+              $('#transp_placa').val(response.transportista.placa);
+              $('#transp_modelo').val(response.transportista.modelo_vehiculo);
+              localStorage.setItem('placa', response.transportista.placa)
+              app.dialog.close();
+              router.navigate('/clientes/', {pushState: true});
+            })
+            .catch(function (error) {
+
+              app.dialog.alert('Usuario no encontrado o password no correcto', 'ERROR');
+              console.log(error)
+              document.write("Boom!")
+            });
+
+*/
+
+
+         $.ajax({
+            type: 'post',
+            url: app.data.url_server + '/login',
+            // headers:{ authorization: `Bearer ${localStorage.token}`},
+            data: {
+              'placa': placa,
+              'clave': clave
+            },
+            success: function (response) {
+
+              console.log(response)
+              localStorage.setItem("transportista", objectToString(response.transportista));
+              localStorage.setItem("token", response.token);
+              $('#transportista').text(response.transportista.empresa_transporte);
+              $('#transp_chofer').val(response.transportista.nombre_chofer);
+              $('#transp_placa').val(response.transportista.placa);
+              $('#transp_modelo').val(response.transportista.modelo_vehiculo);
+
+              localStorage.setItem('placa', response.transportista.placa)
+
+              app.dialog.close();
+              router.navigate('/clientes/', {pushState: true});
+            },
+            error: function (xhr, status, error) {
+
+              var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+              app.dialog.close();
+              //  console.log(err)
+              app.dialog.alert('Ocurrio un Error!. Usuario no encontrado o password no correcto.', 'ERROR');
+             // document.write(JSON.stringify(xhr)+''+ JSON.stringify(status) + JSON.stringify(error))
+            }
+
+          });
+
+
+      },
+
+      ingresar() {
+        this.$app
+      }
+      , uppsercase() {
+        var x = document.getElementById("placa");
+        x.value = x.value.toUpperCase();
+      }
+
+      , keypressenter(e) {
+
+        if (e.key == "Enter" || e.keyCode == 13) {
+          console.log(this.login())
+        }
+      }
+    }
+
+
+  }
+</script>

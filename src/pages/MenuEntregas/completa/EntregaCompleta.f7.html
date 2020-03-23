@@ -1,0 +1,120 @@
+<template>
+  <div class="page">
+
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Entrega completada</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+      <!-- Searchbar backdrop -->
+
+
+      <div class="card-content padre">
+
+
+        <div class="block">
+
+
+          <div class="hijo link">
+            <a @click="validarConformidad" class=" " style="left: -100px;">
+              <img src="static/icons/checked.svg" alt="" style="height: 150px;">
+            </a><br>
+
+
+          </div>
+
+
+        </div>
+
+
+      </div>
+      <center>
+        <h4>CLIENTE</h4>
+        <label style="font-size: 15px; color: #0c82df"><label id="lblCliente"></label></label><br>
+        <label style="font-size: 13px; color: #000"><label id="lblRazonSocial"></label></label><br>
+        <label style="font-size: 11px; color: #6d6d72"><label id="lblDireccion"></label></label><br>
+      </center>
+
+
+      <div class="searchbar-backdrop"></div>
+      <!-- hide-on-search element -->
+
+
+    </div>
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link back">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="validarConformidad">
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+
+  </div>
+</template>
+<script>
+  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../../helper';
+
+  export default {
+
+    created() {
+
+      const app = this.$app;
+      const router = this.$router;
+
+      let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+
+      app.dialog.preloader();
+
+      setTimeout(function () {
+
+        app.dialog.close();
+
+        $('#lblCliente').text(clienteseleccionado.nombre_comercial);
+        $('#lblRazonSocial').text(clienteseleccionado.razon_social);
+        $('#lblDireccion').text(clienteseleccionado.direccion)
+
+      }, 200);
+
+    },
+
+    methods: {
+      validarConformidad() {
+
+        const app = this.$app;
+        const router = this.$router;
+
+
+        router.navigate('/alerta-validar-conformidad/');
+
+
+      }
+      ,
+      irMenu() {
+
+        const app = this.$app;
+        const router = this.$router;
+
+
+        router.navigate('/menu-entrega/');
+
+
+      }
+
+    }
+
+  }
+</script>

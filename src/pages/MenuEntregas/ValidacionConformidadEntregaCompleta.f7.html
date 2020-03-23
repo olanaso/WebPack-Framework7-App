@@ -1,0 +1,111 @@
+<template>
+  <div class="page page-current">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="title" style="align-content: center">Validacion de entrega</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+
+      <div class="card data-table">
+        <table>
+          <thead>
+          <tr>
+            <th class="label-cell">Respecto a:</th>
+
+            <th class="numeric-cell">Conforme </th>
+            <th class="numeric-cell">No conforme</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td class="label-cell">
+              <label style="font-size: 11px;font-weight: bold">Tiempo de entrega</label><br>
+              <label style="font-size: 10px">(¿Su pedido llegó en el tiempo solicitado?)</label>
+            </td>
+
+            <td class="numeric-cell">
+
+              <input  type="radio" name="rbt_tiempo"/>
+            </td>
+            <td class="numeric-cell">
+              <input type="radio" name="rbt_tiempo"/>
+            </td>
+
+          </tr>
+          <tr>
+            <td class="label-cell">
+              <label style="font-size: 11px;font-weight: bold">Producto</label><br>
+              <label style="font-size: 10px">(¿El producto está conforme a lo solicitado?)</label>
+            </td>
+
+            <td class="numeric-cell">
+              <input  type="radio" name="rbt_producto"/>
+            </td>
+            <td class="numeric-cell">
+              <input type="radio" name="rbt_producto"/>
+            </td>
+
+          </tr>
+          <tr>
+            <td class="label-cell">
+              <label style="font-size: 11px;font-weight: bold">Documento</label><br>
+              <label style="font-size: 10px">(¿Facturas, guías estuvieron conformes?)</label>
+            </td>
+
+            <td class="numeric-cell">
+              <input  type="radio" name="rbt_documento"/>
+            </td>
+            <td class="numeric-cell">
+              <input type="radio" name="rbt_documento"/>
+            </td>
+
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link back">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="enviarValidacionInformacion" >
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</template>
+<script>
+  export default {
+
+    methods: {
+      enviarValidacionInformacion() {
+        const app = this.$app;
+        const router = this.$router;
+
+        app.dialog.confirm(`
+
+  <div class="card-content ">Registro completado<br><hr>
+08:00 AM
+</div>
+
+        `, function () {
+
+          router.navigate('/clientes/');
+        })
+
+
+      }
+    }
+
+  }
+</script>

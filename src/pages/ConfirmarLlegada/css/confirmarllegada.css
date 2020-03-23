@@ -1,0 +1,23 @@
+.padre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hijo {
+  line-height: 200px;
+}
+
+.azulc{
+  color: #19769F;
+  font-size: 14px !important;
+}
+.plomoc{
+  color: #95989A;
+  font-size: 11px !important;
+}
+.negroc{
+  color: #51565F;
+  font-size: 9px !important;
+}
+

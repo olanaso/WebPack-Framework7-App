@@ -1,0 +1,24 @@
+.imagecliente{
+  border-radius: 50%;
+}
+.titleclient{
+  color: #19769F !important;
+  font-size: 12px  !important;
+}
+.d-right{
+  float: right;
+}
+.inicial{
+  align-content: center;
+  font-size: 36px;
+  vertical-align: middle;
+
+}
+
+.subtitlepf{
+  font-size:9px  !important;
+}
+.waze-icon{
+  height: 30px!important;
+  padding-top: 5px;
+}

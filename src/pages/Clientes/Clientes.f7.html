@@ -1,0 +1,843 @@
+<template>
+  <div class="page">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link panel-open" data-panel="left">
+            <i class="icon f7-icons if-ios">menu</i>
+            <i class="icon material-icons if-md">menu</i>
+          </a>
+        </div>
+        <div class="center">Clientes</div>
+        <div class="right">
+          <a href="#" class="link" @click="finalizarRuta"><i class="icon material-icons md-only">exit_to_app</i></a>
+        </div>
+
+        <div class="subnavbar">
+          <form data-search-container=".search-list" data-search-in=".item-title"
+                class="searchbar searchbar-init searchbar-enabled">
+            <div class="searchbar-inner">
+              <div class="searchbar-input-wrap">
+                <input type="search" placeholder="Buscar clientes" class="">
+                <i class="searchbar-icon"></i>
+                <span class="input-clear-button"></span>
+              </div>
+              <span class="searchbar-disable-button">Cancel</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <!-- Searchbar backdrop -->
+
+      <!-- hide-on-search element -->
+      <div class="list simple-list searchbar-not-found">
+        <ul>
+          <li>Informacion no encontrada</li>
+        </ul>
+      </div>
+
+
+      <div class="list media-list list-block-search list search-list searchbar-found ">
+        <ul id="lista_transacciones">
+
+
+        </ul>
+      </div>
+      <div style="height: 40px;"></div>
+
+
+      <!-- Nothing found message -->
+
+
+    </div>
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link" @click="pendiente"> <i class="icon material-icons md-only">notifications</i> Pendientes</a>
+        <a class="link" @click="sincronizando"> <i class="icon material-icons md-only">autorenew</i> Sincronizar</a>
+        <a class="link" @click="prioritario"> <i class="icon material-icons md-only">access_time</i> Prioritarios</a>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+
+  import './css/clientes.css';
+  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../helper';
+  import {WazeOpen, whatsApp, call} from '../../HelpApps'
+
+  export default {
+
+    created() {
+
+      this.$app.transportista = StringToObject(localStorage.transportista);
+      var router = this.$router;
+      var myapp = this;
+      const app = this.$app;
+
+      console.log(this)
+      app.dialog.progress();
+      $.ajax({
+        type: 'get',
+        url: app.data.url_server + '/clientes/' + app.transportista.placa + '/sincronizado',
+        headers: {authorization: `Bearer ${localStorage.token}`},
+        /* data: {
+           'placa': placa,
+           'clave': clave
+         },*/
+        success: function (response) {
+
+          if (response.length == 0) {
+
+            setTimeout(function () {
+              app.dialog.close();
+              router.navigate("/clientes-finalizado/");
+            }, 500)
+
+
+          }
+          else {
+
+            $('#lista_transacciones').html('')
+            for (let trans of response) {
+              console.log('-----------------------------');
+              console.log(trans.hora_entrega);
+              (trans.hora_entrega === null) ? console.log(1) : console.log(2)
+              $('#lista_transacciones').append(`
+             <li class="swipeout" >
+                          <div class="swipeout-content" style="background: ${
+
+                trans.estado_planilla == 0 ? '#fff' : '#E1E4E7'
+                }">
+                            <a href="#" class="item-link item-content item_work" estado_planilla="${trans.estado_planilla}" identificador="${trans.id}" cliente='${objectToString(trans).replace(/'/g, '')}'    >
+                              <div class="item-inner" style="border-left: solid 3px ${trans.color_prioridad}; margin-top: 5px; margin-bottom: 5px;padding-left: 3px;margin-left: -6px; padding-top: 3px; padding-bottom: 3px;">
+                                <div class="item-title-row" style="margin-top: 5px;">
+                                  <div class="item-title" style="font-size: 12px;color: #0F6C7F"><b>${trans.razon_social}</b></div>
+                                  <div class="item-after" style="color:#CC0072;font-size: 10px"><span class="badge " style="background: ${trans.color_estado}">${trans.estado_transaccion}</span></div>
+
+                                </div>
+                                <div class="item-subtitle" style="font-size: 10px">${trans.nombre_comercial}</div>
+                                <div class="item-text" style="font-size: 10px">
+                                  <img style="background: ${(trans.hora_llegada === null) ? '#FFF' : '#8FFF1F'}; border-radius: 50%" src="static/icons/marcador-de-posicion.svg" height="15"/> ${trans.direccion}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+
+
+                            <div class="swipeout-actions-left reg_incidente" identificador="${trans.id}" cliente='${objectToString(trans)}'>
+                                             <a href="#" class="color-green swipeout-overswipe alert-reply"> <img src="static/icons/incidente.svg" style="height: 60px"> Incidente</a>
+
+                             </div>
+
+                          <div class="swipeout-actions-right">
+                            <a target="_system" href="#" class="open-more-actions link_waze"  latitud="${trans.latitud}" longitud="${trans.longitud}">
+                              <center>
+                                <img src="static/icons/waze.svg" class="waze-icon"/>
+                              </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_whatsapp"  nrotelefono="${trans.telefono}" cliente="${trans.razon_social}">
+                            <center>
+                            <img src="static/icons/whatsapp.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_telefono"  nrotelefono="${trans.telefono}" >
+                            <center>
+                            <img src="static/icons/telefono.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+
+                          </div>
+                        </li>
+            `)
+            }
+            console.log(response)
+            app.dialog.close();
+            $('.item_work').click(function (e) {
+              let estado_planilla = $(this).attr('estado_planilla');
+              let identificador = $(this).attr('identificador');
+              let cliente = $(this).attr('cliente');
+              myapp.irMarcacion(estado_planilla, identificador, cliente)
+            })
+            $('.reg_incidente').click(function (e) {
+              var router = this.$router;
+              let cliente = $(this).attr('cliente');
+              localStorage.setItem("clienteseleccionado", cliente);
+              myapp.irIncidente();
+
+
+            })
+            $('.link_waze').click(function (e) {
+              let latitud = $(this).attr('latitud');
+              let longitud = $(this).attr('longitud');
+              myapp.goWaze(latitud, longitud);
+            })
+            $('.link_whatsapp').click(function (e) {
+              let nrotelefono = $(this).attr('nrotelefono');
+              let cliente = $(this).attr('cliente');
+              myapp.sendWhattsapp(nrotelefono, cliente);
+            })
+            $('.link_telefono').click(function (e) {
+              let nrotelefono = $(this).attr('nrotelefono');
+              myapp.callCliente(nrotelefono);
+            })
+
+          }
+
+
+        },
+        error: function (xhr, status, error) {
+
+          console.log(xhr)
+          console.log(status)
+          console.log(error)
+          var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+          app.dialog.close();
+          //  console.log(err)
+          app.dialog.alert(errorMessage, 'ERROR');
+        }
+
+      });
+
+
+    },
+    on: {
+      pageInit: function (event, page) {
+
+        var myapp = this;
+        const app = this.$app;
+
+        setInterval(function () {
+
+          //codigo para enviar la posicion
+          navigator.geolocation.getCurrentPosition(function (posistion) {
+
+
+            var baterry;
+
+              window.addEventListener("batterystatus", onBatteryStatus, false);
+
+              function onBatteryStatus(status) {
+                baterry= status.level
+              }
+
+              $.ajax({
+                type: 'post',
+                url: app.data.url_server + '/sendposicion',
+                headers:{ authorization: `Bearer ${localStorage.token}`},
+                data: {
+                  "dni": localStorage.placa,
+                  "latitud": posistion.coords.latitude,
+                  "altitud":posistion.coords.altitude,
+                  "acuracci":posistion.coords.accuracy,
+                  "bateria": baterry,
+                  "longitud":posistion.coords.longitude
+                },
+                success: function (response) {
+                 console.log(response)
+
+                },
+                error: function (xhr, status, error) {
+
+                  var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+                 console.log(errorMessage)
+                  // document.write(JSON.stringify(xhr)+''+ JSON.stringify(status) + JSON.stringify(error))
+                }
+
+              });
+
+
+            },
+            function (error) {
+              console.log(error)
+              /* app.dialog.alert(`El GSP no esta funcionando : ${error.message}`, 'ERROR');*/
+
+            }, {
+              maximumAge: 3000,
+              timeout: 6000,
+              enableHighAccuracy: true
+            });
+
+
+        }, 30000)
+
+      }
+    },
+    methods: {
+      sincronizando() {
+
+
+        var myapp = this;
+        const app = this.$app;
+
+        console.log(this)
+        app.dialog.preloader('Sincronizando ...');
+        $.ajax({
+          type: 'get',
+          url: app.data.url_server + '/clientes/' + app.transportista.placa + '/sincronizado',
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          /* data: {
+             'placa': placa,
+             'clave': clave
+           },*/
+          success: function (response) {
+
+
+            if (response.length == 0) {
+              setTimeout(function () {
+                app.dialog.close();
+                router.navigate("/clientes-finalizado/");
+              }, 500)
+
+            }
+            else {
+
+              $('#lista_transacciones').html('')
+              for (let trans of response) {
+                console.log('-----------------------------');
+                console.log(trans.hora_entrega);
+                (trans.hora_entrega === null) ? console.log(1) : console.log(2)
+                $('#lista_transacciones').append(`
+             <li class="swipeout" >
+                          <div class="swipeout-content" style="background: ${
+
+                  trans.estado_planilla == 0 ? '#fff' : '#E1E4E7'
+                  }">
+                            <a href="#" class="item-link item-content item_work" estado_planilla="${trans.estado_planilla}" identificador="${trans.id}" cliente='${objectToString(trans).replace(/'/g, '')}'    >
+                              <div class="item-inner" style="border-left: solid 3px ${trans.color_prioridad}; margin-top: 5px; margin-bottom: 5px;padding-left: 3px;margin-left: -6px; padding-top: 3px; padding-bottom: 3px;">
+                                <div class="item-title-row" style="margin-top: 5px;">
+                                  <div class="item-title" style="font-size: 12px;color: #0F6C7F"><b>${trans.razon_social}</b></div>
+                                  <div class="item-after" style="color:#CC0072;font-size: 10px"><span class="badge " style="background: ${trans.color_estado}">${trans.estado_transaccion}</span></div>
+
+                                </div>
+                                <div class="item-subtitle" style="font-size: 10px">${trans.nombre_comercial}</div>
+                                <div class="item-text" style="font-size: 10px">
+                                  <img style="background: ${(trans.hora_llegada === null) ? '#FFF' : '#8FFF1F'}; border-radius: 50%" src="static/icons/marcador-de-posicion.svg" height="15"/> ${trans.direccion}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+
+
+                            <div class="swipeout-actions-left reg_incidente" identificador="${trans.id}" cliente='${objectToString(trans)}'>
+                                             <a href="#" class="color-green swipeout-overswipe alert-reply"> <img src="static/icons/incidente.svg" style="height: 60px"> Incidente</a>
+
+                             </div>
+
+                          <div class="swipeout-actions-right">
+                            <a target="_system" href="#" class="open-more-actions link_waze"  latitud="${trans.latitud}" longitud="${trans.longitud}">
+                              <center>
+                                <img src="static/icons/waze.svg" class="waze-icon"/>
+                              </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_whatsapp"  nrotelefono="${trans.telefono}" cliente="${trans.razon_social}">
+                            <center>
+                            <img src="static/icons/whatsapp.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_telefono"  nrotelefono="${trans.telefono}" >
+                            <center>
+                            <img src="static/icons/telefono.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+
+                          </div>
+                        </li>
+            `)
+              }
+              console.log(response)
+              app.dialog.close();
+              $('.item_work').click(function (e) {
+                let estado_planilla = $(this).attr('estado_planilla');
+                let identificador = $(this).attr('identificador');
+                let cliente = $(this).attr('cliente');
+                myapp.irMarcacion(estado_planilla, identificador, cliente)
+              })
+              $('.reg_incidente').click(function (e) {
+
+                var router = this.$router;
+                let cliente = $(this).attr('cliente');
+                localStorage.setItem("clienteseleccionado", cliente);
+                myapp.irIncidente();
+              })
+
+              $('.link_waze').click(function (e) {
+                let latitud = $(this).attr('latitud');
+                let longitud = $(this).attr('longitud');
+                myapp.goWaze(latitud, longitud);
+              })
+
+              $('.link_whatsapp').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                let cliente = $(this).attr('cliente');
+                myapp.sendWhattsapp(nrotelefono, cliente);
+              })
+              $('.link_telefono').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                myapp.callCliente(nrotelefono);
+              })
+
+            }
+
+
+          },
+          error: function (xhr, status, error) {
+
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            //  console.log(err)
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      },
+      pendiente() {
+
+
+        var myapp = this;
+        const app = this.$app;
+
+        console.log(this)
+        app.dialog.preloader('Sincronizando ...');
+        $.ajax({
+          type: 'get',
+          url: app.data.url_server + '/clientes/' + app.transportista.placa + '/pendientes',
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          /* data: {
+             'placa': placa,
+             'clave': clave
+           },*/
+          success: function (response) {
+
+
+            if (response.length == 0) {
+              setTimeout(function () {
+                app.dialog.close();
+                router.navigate("/clientes-finalizado/");
+              }, 500)
+
+            }
+            else {
+
+              $('#lista_transacciones').html('')
+              for (let trans of response) {
+                console.log('-----------------------------');
+                console.log(trans.hora_entrega);
+                (trans.hora_entrega === null) ? console.log(1) : console.log(2)
+                $('#lista_transacciones').append(`
+             <li class="swipeout" >
+                          <div class="swipeout-content" style="background: ${
+
+                  trans.estado_planilla == 0 ? '#fff' : '#E1E4E7'
+                  }">
+                            <a href="#" class="item-link item-content item_work" estado_planilla="${trans.estado_planilla}" identificador="${trans.id}" cliente='${objectToString(trans).replace(/'/g, '')}'    >
+                              <div class="item-inner" style="border-left: solid 3px ${trans.color_prioridad}; margin-top: 5px; margin-bottom: 5px;padding-left: 3px;margin-left: -6px; padding-top: 3px; padding-bottom: 3px;">
+                                <div class="item-title-row" style="margin-top: 5px;">
+                                  <div class="item-title" style="font-size: 12px;color: #0F6C7F"><b>${trans.razon_social}</b></div>
+                                  <div class="item-after" style="color:#CC0072;font-size: 10px"><span class="badge " style="background: ${trans.color_estado}">${trans.estado_transaccion}</span></div>
+
+                                </div>
+                                <div class="item-subtitle" style="font-size: 10px">${trans.nombre_comercial}</div>
+                                <div class="item-text" style="font-size: 10px">
+                                  <img style="background: ${(trans.hora_llegada === null) ? '#FFF' : '#8FFF1F'}; border-radius: 50%" src="static/icons/marcador-de-posicion.svg" height="15"/> ${trans.direccion}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+
+
+                            <div class="swipeout-actions-left reg_incidente" identificador="${trans.id}" cliente='${objectToString(trans)}'>
+                                             <a href="#" class="color-green swipeout-overswipe alert-reply"> <img src="static/icons/incidente.svg" style="height: 60px"> Incidente</a>
+
+                             </div>
+
+                          <div class="swipeout-actions-right">
+                            <a target="_system" href="#" class="open-more-actions link_waze"  latitud="${trans.latitud}" longitud="${trans.longitud}">
+                              <center>
+                                <img src="static/icons/waze.svg" class="waze-icon"/>
+                              </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_whatsapp"  nrotelefono="${trans.telefono}" cliente="${trans.razon_social}">
+                            <center>
+                            <img src="static/icons/whatsapp.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_telefono"  nrotelefono="${trans.telefono}" >
+                            <center>
+                            <img src="static/icons/telefono.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+
+                          </div>
+                        </li>
+            `)
+              }
+              console.log(response)
+              app.dialog.close();
+              $('.item_work').click(function (e) {
+                let estado_planilla = $(this).attr('estado_planilla');
+                let identificador = $(this).attr('identificador');
+                let cliente = $(this).attr('cliente');
+                myapp.irMarcacion(estado_planilla, identificador, cliente)
+              })
+              $('.reg_incidente').click(function (e) {
+
+                var router = this.$router;
+                let cliente = $(this).attr('cliente');
+                localStorage.setItem("clienteseleccionado", cliente);
+                myapp.irIncidente();
+              })
+
+              $('.link_waze').click(function (e) {
+                let latitud = $(this).attr('latitud');
+                let longitud = $(this).attr('longitud');
+                myapp.goWaze(latitud, longitud);
+              })
+
+              $('.link_whatsapp').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                let cliente = $(this).attr('cliente');
+                myapp.sendWhattsapp(nrotelefono, cliente);
+              })
+              $('.link_telefono').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                myapp.callCliente(nrotelefono);
+              })
+
+            }
+
+
+          },
+          error: function (xhr, status, error) {
+
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            //  console.log(err)
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      },
+      prioritario() {
+
+
+        var myapp = this;
+        const app = this.$app;
+
+        console.log(this)
+        app.dialog.preloader('Sincronizando ...');
+        $.ajax({
+          type: 'get',
+          url: app.data.url_server + '/clientes/' + app.transportista.placa + '/prioritario',
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          /* data: {
+             'placa': placa,
+             'clave': clave
+           },*/
+          success: function (response) {
+
+
+            if (response.length == 0) {
+              setTimeout(function () {
+                app.dialog.close();
+                router.navigate("/clientes-finalizado/");
+              }, 500)
+
+            }
+            else {
+
+              $('#lista_transacciones').html('')
+              for (let trans of response) {
+                console.log('-----------------------------');
+                console.log(trans.hora_entrega);
+                (trans.hora_entrega === null) ? console.log(1) : console.log(2)
+                $('#lista_transacciones').append(`
+             <li class="swipeout" >
+                          <div class="swipeout-content" style="background: ${
+
+                  trans.estado_planilla == 0 ? '#fff' : '#E1E4E7'
+                  }">
+                            <a href="#" class="item-link item-content item_work" estado_planilla="${trans.estado_planilla}" identificador="${trans.id}" cliente='${objectToString(trans).replace(/'/g, '')}'    >
+                              <div class="item-inner" style="border-left: solid 3px ${trans.color_prioridad}; margin-top: 5px; margin-bottom: 5px;padding-left: 3px;margin-left: -6px; padding-top: 3px; padding-bottom: 3px;">
+                                <div class="item-title-row" style="margin-top: 5px;">
+                                  <div class="item-title" style="font-size: 12px;color: #0F6C7F"><b>${trans.razon_social}</b></div>
+                                  <div class="item-after" style="color:#CC0072;font-size: 10px"><span class="badge " style="background: ${trans.color_estado}">${trans.estado_transaccion}</span></div>
+
+                                </div>
+                                <div class="item-subtitle" style="font-size: 10px">${trans.nombre_comercial}</div>
+                                <div class="item-text" style="font-size: 10px">
+                                  <img style="background: ${(trans.hora_llegada === null) ? '#FFF' : '#8FFF1F'}; border-radius: 50%" src="static/icons/marcador-de-posicion.svg" height="15"/> ${trans.direccion}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+
+
+                            <div class="swipeout-actions-left reg_incidente" identificador="${trans.id}" cliente='${objectToString(trans)}'>
+                                             <a href="#" class="color-green swipeout-overswipe alert-reply"> <img src="static/icons/incidente.svg" style="height: 60px"> Incidente</a>
+
+                             </div>
+
+                          <div class="swipeout-actions-right">
+                            <a target="_system" href="#" class="open-more-actions link_waze"  latitud="${trans.latitud}" longitud="${trans.longitud}">
+                              <center>
+                                <img src="static/icons/waze.svg" class="waze-icon"/>
+                              </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_whatsapp"  nrotelefono="${trans.telefono}" cliente="${trans.razon_social}">
+                            <center>
+                            <img src="static/icons/whatsapp.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+                            <a target="_system" href="#" class="open-more-actions link_telefono"  nrotelefono="${trans.telefono}" >
+                            <center>
+                            <img src="static/icons/telefono.svg" class="waze-icon"/>
+                            </center>
+                            </a>
+
+
+                          </div>
+                        </li>
+            `)
+              }
+              console.log(response)
+              app.dialog.close();
+              $('.item_work').click(function (e) {
+                let estado_planilla = $(this).attr('estado_planilla');
+                let identificador = $(this).attr('identificador');
+                let cliente = $(this).attr('cliente');
+                myapp.irMarcacion(estado_planilla, identificador, cliente)
+              })
+              $('.reg_incidente').click(function (e) {
+
+                var router = this.$router;
+                let cliente = $(this).attr('cliente');
+                localStorage.setItem("clienteseleccionado", cliente);
+                myapp.irIncidente();
+              })
+
+              $('.link_waze').click(function (e) {
+                let latitud = $(this).attr('latitud');
+                let longitud = $(this).attr('longitud');
+                myapp.goWaze(latitud, longitud);
+              })
+
+              $('.link_whatsapp').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                let cliente = $(this).attr('cliente');
+                myapp.sendWhattsapp(nrotelefono, cliente);
+              })
+              $('.link_telefono').click(function (e) {
+                let nrotelefono = $(this).attr('nrotelefono');
+                myapp.callCliente(nrotelefono);
+              })
+
+            }
+
+
+          },
+          error: function (xhr, status, error) {
+
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            //  console.log(err)
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      },
+      finalizarRuta() {
+
+        const app = this.$app;
+        var router = this.$router;
+
+
+        $.ajax({
+          type: 'get',
+          url: app.data.url_server + '/clientes_pendiemte/' + app.transportista.placa,
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          /* data: {
+             'placa': placa,
+             'clave': clave
+           },*/
+          success: function (response) {
+            let cantcliente = response.length;
+            app.dialog.create({
+              title: cantcliente + ' entregas pendientes.',
+              text: '',
+              buttons: [
+                {
+                  text: 'Finalizar',
+                  onClick: function () {
+                    router.navigate('/finalizar-ruta/');
+                  }
+                },
+                {
+                  text: 'Continuar',
+                  onClick: function () {
+                  }
+                }
+              ],
+              verticalButtons: false,
+            }).open();
+
+          },
+          error: function (xhr, status, error) {
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      }
+      ,
+      goWaze(lat, lon) {
+
+        try {
+          var latitud = Number(lat);
+          var longitud = Number(lon);
+
+
+          if (!latitud || !longitud || latitud == 0 || longitud == 0) {
+            throw new {
+              error: 'Error en las cordenadas'
+            }
+          }
+
+
+          WazeOpen(latitud, longitud)
+        }
+        catch (e) {
+          app.dialog.alert(e.error, 'Error')
+        }
+
+
+        //document.body.removeChild(link);
+
+
+      },
+
+      sendWhattsapp(telefono, cliente) {
+
+        try {
+
+          whatsApp(telefono, `Estimado Cliente: ${cliente}, estamos proximos a visitarlo para hacer la entrega de su pedido.`)
+        }
+        catch (e) {
+          app.dialog.alert(e.error, 'Error')
+        }
+
+
+        //document.body.removeChild(link);
+
+
+      },
+
+      irIncidente() {
+        const router = this.$router;
+        router.navigate("/incidente/");
+
+
+      },
+
+
+      callCliente(telefono) {
+
+        try {
+          call(telefono)
+        }
+        catch (e) {
+          app.dialog.alert(e.error, 'Error')
+        }
+
+
+        //document.body.removeChild(link);
+
+
+      },
+
+      irMarcacion(estado_transaccion, idtransaccion, cliente) {
+
+        const app = this.$app;
+        const router = this.$router;
+        localStorage.setItem("clienteseleccionado", cliente);
+        /*Comprobando si se realizo el marcado de llegada*/
+        $.ajax({
+          type: 'get',
+          url: app.data.url_server + '/validarMarcadoLLegada/' + idtransaccion,
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          /* data: {
+             'placa': placa,
+             'clave': clave
+           },*/
+          success: function (response) {
+
+            if (response.ismarcado) {
+
+
+              if (estado_transaccion === '0') {
+                app.dialog.confirm('La hora de llegada ya fue registrada. ¿Desea ir al Menu de opciones.? ',
+                  function () {
+                    router.navigate("/menu-entrega/");
+                  }
+                  , function () {
+
+                  })
+              } else {
+                app.dialog.alert('La entrega a este cliente ya fue realizada, ya no es posible realizar la entrega de nuevo', 'AVISO');
+              }
+
+
+            }
+            else {
+              if (estado_transaccion === '0') {
+                router.navigate('/confirmar-llegada/');
+              } else {
+                app.dialog.alert('La entrega a este cliente ya fue realizada, ya no es posible realizar la entrega de nuevo', 'AVISO');
+              }
+            }
+
+          },
+          error: function (xhr, status, error) {
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            app.dialog.alert(errorMessage, 'ERROR');
+          }
+
+        });
+
+
+      }
+    }
+  }
+</script>

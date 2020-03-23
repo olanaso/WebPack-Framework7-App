@@ -1,0 +1,242 @@
+<template>
+  <div class="page page-current">
+    <div class="navbar color-theme-orange">
+      <div class="navbar-inner">
+
+        <div class="left">
+          <a href="#" class="link"></a>
+        </div>
+        <div class="center">Validación de Conformidad EC</div>
+
+      </div>
+    </div>
+    <div class="page-content">
+
+      <div class="card data-table">
+
+
+        <div class="block block-strong">
+          <div class="block-title">Tiempo de entrega (Desde toma de pedido)</div>
+          <h4>¿Su pedido llegó en el tiempo solicitado?</h4>
+        </div>
+
+        <div class="block block-strong">
+          <center>
+            <p class="divtiempo">
+              <label class="radio rbncheck">Conforme
+                <!-- radio input -->
+                <input type="radio" name="tiempo" value="true" class="rbncheck" tipo="tiempo">
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+              </label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <label class="radio"> No conforme
+                <!-- radio input -->
+                <input type="radio" name="tiempo" value="false" class="rbncheck tiempo" tipo="tiempo">
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+              </label>
+            </p>
+          </center>
+        </div>
+
+        <div class="block block-strong">
+          <div class="block-title">Producto</div>
+          <h4>¿El producto está conforme a lo solicitado?</h4>
+        </div>
+        <div class="block block-strong">
+          <center>
+            <p>
+              <label class="radio">
+                Conforme
+                <!-- radio input -->
+                <input type="radio" name="producto" value="true" class="rbncheck producto" tipo="producto">
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+
+              </label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <label class="radio">
+                No Conforme
+                <!-- radio input -->
+                <input type="radio" name="producto" value="false" class="rbncheck producto" tipo="producto">
+
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+
+              </label>
+            </p>
+          </center>
+        </div>
+
+        <div class="block block-strong">
+          <div class="block-title">Documento</div>
+          <h4>¿Facturas, guías estuvieron conformes?</h4>
+        </div>
+
+        <div class="block block-strong">
+          <center>
+            <p>
+              <label class="radio" style="line-height: 20px">
+                Conforme
+                <!-- radio input -->
+                <input type="radio" name="documento" value="true" class="rbncheck documento" tipo="documento">
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+
+              </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <label class="radio"> No conforme
+                <!-- radio input -->
+                <input type="radio" name="documento" value="false" class="rbncheck documento" tipo="documento">
+                <!-- radio icon -->
+                <i class="icon-radio"></i>
+              </label>
+            </p>
+          </center>
+        </div>
+
+      </div>
+      <div style="height: 35px;"></div>
+    </div>
+
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a class="link back">
+          <i class="icon material-icons md-only">close</i>
+          <span class="tabbar-label">Cancelar</span>
+        </a>
+        <a class="link" @click="enviarValidacionInformacion">
+          <i class="icon material-icons md-only">check</i>
+          <span class="tabbar-label">Confirmar</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</template>
+<script>
+
+  //  import $ from "jquery";
+  import {objectToString, StringToObject} from '../../../helper';
+  import $ from "jquery";
+  import moment from 'moment';
+
+  var tiempo = null;
+  var producto = null;
+  var documento = null;
+
+  export default {
+
+    pageInit: function (event, page) {
+      alert('init')
+
+    },
+
+    created() {
+      // alert('created')
+
+
+      /*  $('.rbncheck').on('change click', function(ev){
+          console.log($(ev.currentTarget).val());
+        });*/
+      $('input[type="radio"]').on('change click', function (ev) {
+        console.log(tiempo);
+        console.log($$(ev.currentTarget).val());
+      });
+
+    },
+
+    methods: {
+      enviarValidacionInformacion() {
+
+
+        const app = this.$app;
+        const router = this.$router;
+        let clienteseleccionado = StringToObject(localStorage.clienteseleccionado);
+        app.dialog.preloader();
+        let tiempo = null;
+        let producto = null;
+        let documento = null;
+
+        let encuesta_entrega_completa = StringToObject(localStorage.encuesta_entrega_completa);
+
+        $.ajax({
+          type: 'put',
+          url: app.data.url_server + '/registroEntregaTotal',
+          headers: {authorization: `Bearer ${localStorage.token}`},
+          data: {
+            id: clienteseleccionado.id,
+            encuesta_t_entrega: encuesta_entrega_completa.tiempo,
+            encuesta_producto: encuesta_entrega_completa.producto,
+            encuesta_documento: encuesta_entrega_completa.documento
+          },
+          success: function (response) {
+            app.dialog.close();
+            app.dialog.confirm('Hora de Entrega Completa:' + moment(response.hora_entrega).format('DD MMMM YYYY, h:mm:ss a')
+              , 'Registro Entrega Completo Correcto', function () {
+                router.navigate('/clientes/');
+
+
+              }, function () {
+
+              });
+
+
+          },
+          error: function (xhr, status, error) {
+            var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+            app.dialog.close();
+            app.dialog.alert('Por favor contestar toda la encuesta o dejar en blanco ', 'ERROR');
+          }
+
+        });
+     /*   if(encuesta_entrega_completa.tiempo && encuesta_entrega_completa.producto && encuesta_entrega_completa.documento  ){
+
+
+        }else{
+          if(!encuesta_entrega_completa.tiempo && !encuesta_entrega_completa.producto && !encuesta_entrega_completa.documento ){
+            $.ajax({
+              type: 'put',
+              url: app.data.url_server + '/registroEntregaTotal',
+              headers: {authorization: `Bearer ${localStorage.token}`},
+              data: {
+                id: clienteseleccionado.id,
+                encuesta_t_entrega: encuesta_entrega_completa.tiempo,
+                encuesta_producto: encuesta_entrega_completa.producto,
+                encuesta_documento: encuesta_entrega_completa.documento
+              },
+              success: function (response) {
+                app.dialog.close();
+                app.dialog.confirm('Hora de Entrega Completa:' + moment(response.hora_entrega).format('DD MMMM YYYY, h:mm:ss a')
+                  , 'Registro Entrega Completo Correcto', function () {
+                    router.navigate('/clientes/');
+
+
+                  }, function () {
+
+                  });
+
+
+              },
+              error: function (xhr, status, error) {
+                var errorMessage = xhr.responseText + ' ' + xhr.status + ': ' + xhr.statusText
+                app.dialog.close();
+                app.dialog.alert(errorMessage, 'ERROR');
+              }
+
+            });
+          }else{
+            app.dialog.close()
+            app.dialog.alert('Por favor contestar toda la encuesta', 'ERROR');
+          }
+
+        }*/
+
+
+
+
+
+      }
+    }
+
+  }
+</script>
